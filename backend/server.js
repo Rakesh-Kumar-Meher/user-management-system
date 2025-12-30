@@ -12,23 +12,13 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
-// CORS Configuration - UPDATED
-const corsOptions = {
-  origin: process.env.NODE_ENV === 'production' 
-    ? [
-        'https://user-management-system-blue-phi.vercel.app',
-        'https://user-management-system-git-main-rakesh-kumar-mehers-projects.vercel.app',
-        'https://user-management-system-j7i49z530-rakesh-kumar-mehers-projects.vercel.app',
-        'http://localhost:5173'
-      ]
-    : ['http://localhost:5173', 'http://localhost:5174'],
-  credentials: true,
+app.use(cors({
+  origin: '*',
+  credentials: false,  // Set to false when using '*'
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
-};
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
-app.use(cors(corsOptions));
 
 // Middleware
 app.use(express.json());
