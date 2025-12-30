@@ -12,8 +12,25 @@ const app = express();
 // Connect to MongoDB
 connectDB();
 
+// CORS Configuration - UPDATED
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production' 
+    ? [
+        'https://user-management-system-blue-phi.vercel.app',
+        'https://user-management-system-git-main-rakesh-kumar-mehers-projects.vercel.app',
+        'https://user-management-system-j7i49z530-rakesh-kumar-mehers-projects.vercel.app',
+        'http://localhost:5173'
+      ]
+    : ['http://localhost:5173', 'http://localhost:5174'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
 // Middleware
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -36,45 +53,11 @@ app.get('/', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-  
-  // Mongoose duplicate key error
-  if (err.code === 11000) {
-    return res.status(400).json({
-      success: false,
-      message: 'Duplicate field value entered'
-    });
-  }
-  
-  // Mongoose validation error
-  if (err.name === 'ValidationError') {
-    const messages = Object.values(err.errors).map(val => val.message);
-    return res.status(400).json({
-      success: false,
-      message: messages.join(', ')
-    });
-  }
-  
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Invalid token'
-    });
-  }
-  
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({
-      success: false,
-      message: 'Token expired'
-    });
-  }
-  
-  // Default error
-  res.status(err.statusCode || 500).json({
+  console.error(err.stack);
+  res.status(500).json({
     success: false,
-    message: err.message || 'Server error',
-    error: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 
